@@ -71,6 +71,5 @@ void lcd_display_picture(unsigned char *picture, unsigned int x0, unsigned int y
 
 void lcd_display_string(char *string, unsigned int x0, unsigned int y0)
 {
-	//display string here
 
 }

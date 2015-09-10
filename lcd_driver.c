@@ -1,0 +1,75 @@
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <linux/fb.h>
+#include <sys/mman.h>
+
+#include "./includes/font.h"
+#include "./includes/lcd_driver.h"
+
+extern char *fbp;
+extern struct fb_var_screeninfo vinfo;
+extern struct fb_fix_screeninfo finfo;
+
+//color: 3 bytes: Red-Green-Blue: defined in lcd_driver.h
+void lcd_draw_pixel(unsigned int x, unsigned int y, unsigned int color)
+{
+	long int location = 0;
+
+	//Figure out where in memory to put the pixel
+	location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+			(y+vinfo.yoffset) * finfo.line_length;
+
+	*(fbp + location) = (color>>0)&0xFF;    /* blue */
+	*(fbp + location + 1) = (color>>8)&0xFF; /* green */
+	*(fbp + location + 2) = (color>>16)&0xFF; /* red */
+	*(fbp + location + 3) = 0; /* No transparency */
+}
+
+void lcd_fill(unsigned int x0, unsigned int y0, unsigned int dx, unsigned int dy, unsigned int color)
+{
+	int x,y;
+
+	for(y = y0; y < (y0+dy); y++)
+	{
+		for(x = x0; x < (x0+dx); x++)
+		{
+			lcd_draw_pixel(x,y,color);
+		}
+	}
+}
+
+void lcd_clear(unsigned int color)
+{
+	lcd_fill(0,0,800,480,color);
+}
+
+void lcd_display_picture(unsigned char *picture, unsigned int x0, unsigned int y0)
+{
+	unsigned int x,y;
+	unsigned int dx, dy;
+	long int location = 0;
+
+	dx = (unsigned int)((picture[2]<<8)|picture[3]);
+	dy = (unsigned int)((picture[4]<<8)|picture[5]);
+
+	fprintf(stderr, "%s: size of pict: %dx%d\n", __FUNCTION__, dx, dy);
+
+	for(y = y0; y < (y0+dy); y++) {
+		for(x = x0; x < (x0+dx); x++) {
+			/* Figure out where in memory to put the pixel */
+			location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+					(y+vinfo.yoffset) * finfo.line_length;
+
+			*(fbp + location) = picture[3*(dx*(y-y0)+(x-x0))+10];    /* blue */
+			*(fbp + location + 1) = picture[3*(dx*(y-y0)+(x-x0))+9]; /* green */
+			*(fbp + location + 2) = picture[3*(dx*(y-y0)+(x-x0))+8]; /* red */
+			*(fbp + location + 3) = 0; /* No transparency */
+		}
+	}
+}
+
+void lcd_display_string(char *string, unsigned int x0, unsigned int y0)
+{
+
+}

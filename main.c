@@ -6,8 +6,7 @@
 
 #include "./images/book_heart.h"
 #include "./images/robot.h"
-#include "./images/filmframe.h"
-#include "./includes/font.h"
+//#include "./images/filmframe.h"
 #include "./includes/lcd_driver.h"
 
 char *fbp = 0;
@@ -54,17 +53,19 @@ int main()
 	fprintf(stderr, "The frame buffer device was mapped to memory successfully.\n");
 
 //	lcd_display_picture(gImage_filmframe,0,0);
-	lcd_clear(YELLOW_COLOR);
-	lcd_display_string();
-	return 0;
+
 	while(1) {
 		lcd_clear(YELLOW_COLOR);
+		lcd_display_string("DINH VU TIEN LAM 17:09:85", 10, 10, RED_COLOR, CURRENT_COLOR);
 		sleep(5);
 		lcd_fill(100,100,100,100,GREEN_COLOR);
+		lcd_draw_rectangle(100, 200, 200, 300, BLACK_COLOR, 0);
 		sleep(5);
 		lcd_fill(200,200,100,100,BLUE_COLOR);
+		lcd_draw_circle(200, 200, 100, PINK_COLOR);
 		sleep(5);
 		lcd_fill(300,300,100,100,BLACK_COLOR);
+		lcd_draw_eclipse(300, 200, 250, 100, WHITE_COLOR);
 		sleep(5);
 		lcd_display_picture(gImage_robot,500,10);
 		sleep(5);

@@ -6,6 +6,7 @@
 
 #include "./images/book_heart.h"
 #include "./images/robot.h"
+#include "./images/filmframe.h"
 #include "./includes/font.h"
 #include "./includes/lcd_driver.h"
 
@@ -16,11 +17,10 @@ struct fb_fix_screeninfo finfo;
 int main()
 {
 	int fbfd = 0;
-
 	long int screensize = 0;
-
 	int x = 0, y = 0;
 	long int location = 0;
+	//char date_str[15], time_str[9];
 
 	/* Open the file for reading and writing */
 	fbfd = open("/dev/fb0", O_RDWR);
@@ -48,11 +48,15 @@ int main()
 	/* Map the device to memory */
 	fbp = (char *)mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
 	if ((int)fbp == -1) {
-		fprintf(stderr, "Error: failed to map framebuffer device to memory.\n");
+		fprintf(stderr, "Error: failed to map frame buffer device to memory.\n");
 		return -1;
 	}
-	fprintf(stderr, "The framebuffer device was mapped to memory successfully.\n");
+	fprintf(stderr, "The frame buffer device was mapped to memory successfully.\n");
 
+//	lcd_display_picture(gImage_filmframe,0,0);
+	lcd_clear(YELLOW_COLOR);
+	lcd_display_string();
+	return 0;
 	while(1) {
 		lcd_clear(YELLOW_COLOR);
 		sleep(5);
@@ -66,6 +70,11 @@ int main()
 		sleep(5);
 		lcd_display_picture(gImage_book_heart,0,0);
 		sleep(5);
+//		memset(date_str, 0, sizeof(date_str));
+//		memset(time_str, 0, sizeof(time_str));
+//		get_date_time(date_str, time_str);
+//		fprintf(stderr, "DATE: %s\n", date_str);
+//		fprintf(stderr, "TIME: %s\n", time_str);
 	}
 
 	munmap(fbp, screensize);

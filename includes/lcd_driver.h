@@ -20,11 +20,8 @@ void lcd_clear(unsigned int color);
 void lcd_draw_hline(unsigned int x, unsigned int y0, unsigned int y1, unsigned int color);
 void lcd_draw_vline(unsigned int x0, unsigned int x1, unsigned int y, unsigned int color);
 void lcd_draw_rectangle(unsigned int x0, unsigned int x1, unsigned int y0, unsigned int y1, unsigned int color, int isFill);
-int qSin(unsigned int ph);
-void lcd_draw_eclipse(unsigned int x0, unsigned int y0, unsigned int x_r0, unsigned int y_r0, unsigned int color);
-void lcd_draw_circle(unsigned int x0, unsigned int y0, unsigned int r0, unsigned int color);
 void lcd_display_picture(const unsigned char *picture, unsigned int x0, unsigned int y0);
-int lcd_display_character(unsigned char ch, unsigned int x0, unsigned int y0, unsigned int text_color, unsigned int background_color);
+void lcd_display_character(unsigned char ch, unsigned int x0, unsigned int y0, unsigned int text_color, unsigned int background_color);
 void lcd_display_string(unsigned char *str, unsigned int x0, unsigned int y0, unsigned int text_color, unsigned int background_color);
 
 #endif

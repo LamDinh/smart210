@@ -54,29 +54,27 @@ int main()
 
 //	lcd_display_picture(gImage_filmframe,0,0);
 
-	while(1) {
+//	while(1) {
 		lcd_clear(YELLOW_COLOR);
-		lcd_display_string("DINH VU TIEN LAM 17:09:85", 10, 10, RED_COLOR, CURRENT_COLOR);
-		sleep(5);
-		lcd_fill(100,100,100,100,GREEN_COLOR);
-		lcd_draw_rectangle(100, 200, 200, 300, BLACK_COLOR, 0);
-		sleep(5);
-		lcd_fill(200,200,100,100,BLUE_COLOR);
-		lcd_draw_circle(200, 200, 100, PINK_COLOR);
-		sleep(5);
-		lcd_fill(300,300,100,100,BLACK_COLOR);
-		lcd_draw_eclipse(300, 200, 250, 100, WHITE_COLOR);
-		sleep(5);
-		lcd_display_picture(gImage_robot,500,10);
-		sleep(5);
-		lcd_display_picture(gImage_book_heart,0,0);
-		sleep(5);
+		lcd_draw_vline(10, 799, 15, BLUE_COLOR);
+		lcd_draw_vline(10, 799, 43, BLUE_COLOR);
+		lcd_display_string("ABCDEFGHIJKLMNOPQRSTUVW", 10, 10, RED_COLOR, CURRENT_COLOR);
+		lcd_display_string("UVWXYZabcdefghijklmn", 10, 50, BLUE_COLOR, CURRENT_COLOR);
+		lcd_display_string("opqrstuvwxyz01234567", 10, 90, GREEN_COLOR, CURRENT_COLOR);
+		lcd_display_string("!#@$%^&*():;'<>,./?`", 10, 130, BLACK_COLOR, CURRENT_COLOR);
+		lcd_display_string("\{}[]|/", 10, 170, PINK_COLOR, CURRENT_COLOR);
+		lcd_display_string("A B C D E F G H I J", 10, 210, PINK_COLOR, CURRENT_COLOR);
+//		sleep(5);
+//		lcd_display_picture(gImage_robot,500,10);
+//		sleep(5);
+//		lcd_display_picture(gImage_book_heart,0,0);
+//		sleep(5);
 //		memset(date_str, 0, sizeof(date_str));
 //		memset(time_str, 0, sizeof(time_str));
 //		get_date_time(date_str, time_str);
 //		fprintf(stderr, "DATE: %s\n", date_str);
 //		fprintf(stderr, "TIME: %s\n", time_str);
-	}
+//	}
 
 	munmap(fbp, screensize);
 	close(fbfd);

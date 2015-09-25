@@ -9,6 +9,9 @@
 //#include "./images/filmframe.h"
 #include "./includes/lcd_driver.h"
 
+
+extern const unsigned char font_width[96];
+
 char *fbp = 0;
 struct fb_var_screeninfo vinfo;
 struct fb_fix_screeninfo finfo;
@@ -19,7 +22,7 @@ int main()
 	long int screensize = 0;
 	int x = 0, y = 0;
 	long int location = 0;
-	//char date_str[15], time_str[9];
+	char date_str[19], time_str[13], date_str_tmp[19], time_str_tmp[13];
 
 	/* Open the file for reading and writing */
 	fbfd = open("/dev/fb0", O_RDWR);
@@ -54,27 +57,27 @@ int main()
 
 //	lcd_display_picture(gImage_filmframe,0,0);
 
-//	while(1) {
-		lcd_clear(YELLOW_COLOR);
-		lcd_draw_vline(10, 799, 15, BLUE_COLOR);
-		lcd_draw_vline(10, 799, 43, BLUE_COLOR);
-		lcd_display_string("ABCDEFGHIJKLMNOPQRSTUVW", 10, 10, RED_COLOR, CURRENT_COLOR);
-		lcd_display_string("UVWXYZabcdefghijklmn", 10, 50, BLUE_COLOR, CURRENT_COLOR);
-		lcd_display_string("opqrstuvwxyz01234567", 10, 90, GREEN_COLOR, CURRENT_COLOR);
-		lcd_display_string("!#@$%^&*():;'<>,./?`", 10, 130, BLACK_COLOR, CURRENT_COLOR);
-		lcd_display_string("\{}[]|/", 10, 170, PINK_COLOR, CURRENT_COLOR);
-		lcd_display_string("A B C D E F G H I J", 10, 210, PINK_COLOR, CURRENT_COLOR);
-//		sleep(5);
-//		lcd_display_picture(gImage_robot,500,10);
-//		sleep(5);
-//		lcd_display_picture(gImage_book_heart,0,0);
-//		sleep(5);
-//		memset(date_str, 0, sizeof(date_str));
-//		memset(time_str, 0, sizeof(time_str));
-//		get_date_time(date_str, time_str);
-//		fprintf(stderr, "DATE: %s\n", date_str);
-//		fprintf(stderr, "TIME: %s\n", time_str);
-//	}
+	lcd_clear(YELLOW_COLOR);
+	memset(date_str, 0, sizeof(date_str));
+	memset(time_str, 0, sizeof(time_str));
+	memset(date_str_tmp, 0, sizeof(date_str_tmp));
+	memset(time_str_tmp, 0, sizeof(time_str_tmp));
+	//lcd_display_picture(gImage_book_heart,0,0);
+	lcd_display_bmp_picture("/root/LAM/photo.bmp", 0, 0);
+	while(1) {
+		get_date_time(date_str, time_str);
+		if (strcmp(date_str, date_str_tmp) != 0) {
+			lcd_display_string(date_str, 50, 200, BLUE_COLOR, RED_COLOR);
+		}
+		if (strcmp(time_str, time_str_tmp) != 0) {
+			lcd_display_string(time_str, 50, 260, BLUE_COLOR, RED_COLOR);
+		}
+		strcpy(date_str_tmp, date_str);
+		strcpy(time_str_tmp, time_str);
+		memset(date_str, 0, sizeof(date_str));
+		memset(time_str, 0, sizeof(time_str));
+		sleep(1);
+	}
 
 	munmap(fbp, screensize);
 	close(fbfd);

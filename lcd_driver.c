@@ -75,6 +75,7 @@ void lcd_draw_rectangle(unsigned int x0, unsigned int x1, unsigned int y0, unsig
 	}
 }
 
+//Display a picture from raw data in an data array: created by Img2Lcd software
 void lcd_display_picture(const unsigned char *picture, unsigned int x0, unsigned int y0)
 {
 	unsigned int x, y;
@@ -84,7 +85,7 @@ void lcd_display_picture(const unsigned char *picture, unsigned int x0, unsigned
 	dx = (unsigned int)((picture[2]<<8) | picture[3]);
 	dy = (unsigned int)((picture[4]<<8) | picture[5]);
 
-	fprintf(stderr, "%s: size of pict: %dx%d\n", __FUNCTION__, dx, dy);
+	//fprintf(stderr, "%s: size of pict: %dx%d\n", __FUNCTION__, dx, dy);
 
 	for(y = y0; y < (y0+dy); y++) {
 		for(x = x0; x < (x0+dx); x++) {
@@ -99,22 +100,99 @@ void lcd_display_picture(const unsigned char *picture, unsigned int x0, unsigned
 	}
 }
 
+//Display a bmp picture from file system
+//This function just supports 24 bits per pixel file
+//file_name should be the full path of file
+int lcd_display_bmp_picture(char *file_name, unsigned int x0, unsigned int y0)
+{
+	FILE *fp_bmp;
+	unsigned char *BGR_data = NULL;
+	unsigned int x, y;
+	long int location = 0;
+	unsigned short bit_per_pixel, width, height;
+	unsigned int SizeOfImage;
+
+	fp_bmp = fopen(file_name, "r");
+
+	if (!fp_bmp) {
+		fprintf(stderr, "Cann't open file: %s \n", file_name);
+		return -1;
+	}
+
+	fseek(fp_bmp, 0x1CL, SEEK_SET);
+	fread(&bit_per_pixel, 2 , 1, fp_bmp);
+
+	fprintf(stderr, "bit_per_pixel = %d = 0x%x\n", bit_per_pixel, bit_per_pixel);
+
+	if (bit_per_pixel == 0x18) {		//24 bits per pixel
+		fseek(fp_bmp, 0x12L, SEEK_SET);
+		fread(&width, 2, 1, fp_bmp);  // Read width size image
+		fseek(fp_bmp, 0x16L, SEEK_SET);
+		fread(&height, 2, 1, fp_bmp);  // Read height size image
+		fseek(fp_bmp, 0x22L, SEEK_SET);
+		fread(&SizeOfImage, 4, 1, fp_bmp); //read size of image: number of bytes of raw data
+
+		fprintf(stderr, "width = %d = 0x%x (pixels)\n", width, width);
+		fprintf(stderr, "height = %d = 0x%x (pixels)\n", height, height);
+		fprintf(stderr, "SizeOfImage = %d = 0x%x (bytes)\n", SizeOfImage, SizeOfImage);
+
+		fseek(fp_bmp, 0x36L, SEEK_SET); //jump to start address of raw data
+
+		BGR_data = (unsigned char *)calloc(SizeOfImage, 1);
+
+		if (BGR_data == NULL) {
+			fprintf(stderr, "Cann't malloc memory for image's data\n");
+			return -1;
+		}
+
+		fread(BGR_data, SizeOfImage, 1, fp_bmp);
+	}
+	else {
+		fprintf(stderr, "File %s is not 24 bits per pixel format: unsupported, please re-format into correct type\n", file_name);
+		fclose(fp_bmp);
+		return -1;
+	}
+
+	for(y = y0; y < (y0+height); y++) {
+		for(x = x0; x < (x0+width); x++) {
+			//Figure out where in memory to put the pixel
+			location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) + (y+vinfo.yoffset) * finfo.line_length;
+
+			*(fbp + location) = BGR_data[3*(width*(y-y0) + (x-x0))];			//Blue
+			*(fbp + location + 1) = BGR_data[3*(width*(y-y0) + (x-x0)) + 1];	//Green
+			*(fbp + location + 2) = BGR_data[3*(width*(y-y0) + (x-x0)) + 2];	//Red
+			*(fbp + location + 3) = 0;											//No transparency
+		}
+	}
+
+	if (BGR_data != NULL) {
+		free(BGR_data);
+	}
+	fclose(fp_bmp);
+
+	return 0;
+}
+
 void lcd_display_character(unsigned char ch, unsigned int x0, unsigned int y0, unsigned int text_color, unsigned int background_color)
 {
 	unsigned int x, y;
 	unsigned int dx, dy;
 	long int location = 0;
+	unsigned int color_tmp[3];
 
 	dx = (unsigned int)((font_arial_28[ch-32][2]<<8) | font_arial_28[ch-32][3]);
 	dy = (unsigned int)((font_arial_28[ch-32][4]<<8) | font_arial_28[ch-32][5]);
-
-	//fprintf(stderr, "%s: size of character: %dx%d\n", __FUNCTION__, dx, dy);
 
 	for(y = y0; y < (y0+dy); y++) {
 		for(x = x0; x < (x0+dx); x++) {
 			//Figure out where in memory to put the pixel
 			location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) + (y+vinfo.yoffset) * finfo.line_length;
+			//Save current color
+			color_tmp[0] = *(fbp + location);
+			color_tmp[1] = *(fbp + location + 1);
+			color_tmp[2] = *(fbp + location + 2);
 
+			//Coloring follow the font data
 			if ((font_arial_28[ch-32][3*(dx*(y-y0) + (x-x0)) + 10] == 0x00)
 				&& (font_arial_28[ch-32][3*(dx*(y-y0) + (x-x0)) + 9] == 0x00)
 				&& (font_arial_28[ch-32][3*(dx*(y-y0) + (x-x0)) + 10] == 0x00)){
@@ -126,9 +204,17 @@ void lcd_display_character(unsigned char ch, unsigned int x0, unsigned int y0, u
 				if (background_color != CURRENT_COLOR) {
 					*(fbp + location) = (background_color>>0)&0xFF;		//Blue
 					*(fbp + location + 1) = (background_color>>8)&0xFF;	//Green
-					*(fbp + location + 2) = (background_color>>16)&0xFF;	//Red
+					*(fbp + location + 2) = (background_color>>16)&0xFF;//Red
 				}
 			}
+
+			//Re-color unnecessary area into previous color
+			if (x >= (x0+font_width[ch-32])) {
+				*(fbp + location) = color_tmp[0];		//Blue
+				*(fbp + location + 1) = color_tmp[1];	//Green
+				*(fbp + location + 2) = color_tmp[2];	//Red
+			}
+
 			*(fbp + location + 3) = 0;	//No transparency
 		}
 	}
@@ -143,7 +229,6 @@ void lcd_display_string(unsigned char *str, unsigned int x0, unsigned int y0, un
 
 	for (i = 0; i < strlen(str); i++) {
 		lcd_display_character(str[i], x, y0, text_color, background_color);
-
 		x += font_width[str[i] - 32];
 	}
 }

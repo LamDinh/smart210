@@ -21,6 +21,7 @@ void lcd_draw_hline(unsigned int x, unsigned int y0, unsigned int y1, unsigned i
 void lcd_draw_vline(unsigned int x0, unsigned int x1, unsigned int y, unsigned int color);
 void lcd_draw_rectangle(unsigned int x0, unsigned int x1, unsigned int y0, unsigned int y1, unsigned int color, int isFill);
 void lcd_display_picture(const unsigned char *picture, unsigned int x0, unsigned int y0);
+int lcd_display_bmp_picture(char *file_name, unsigned int x0, unsigned int y0);
 void lcd_display_character(unsigned char ch, unsigned int x0, unsigned int y0, unsigned int text_color, unsigned int background_color);
 void lcd_display_string(unsigned char *str, unsigned int x0, unsigned int y0, unsigned int text_color, unsigned int background_color);
 

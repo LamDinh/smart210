@@ -106,11 +106,12 @@ void lcd_display_picture(const unsigned char *picture, unsigned int x0, unsigned
 int lcd_display_bmp_picture(char *file_name, unsigned int x0, unsigned int y0)
 {
 	FILE *fp_bmp;
-	unsigned char *BGR_data = NULL;
-	unsigned int x, y;
+	unsigned char *BGR_raw_data = NULL, *BGR_tmp = NULL, *BGR = NULL;
+	unsigned int x, y, i, j;
 	long int location = 0;
 	unsigned short bit_per_pixel, width, height;
 	unsigned int SizeOfImage;
+	unsigned char remainder;
 
 	fp_bmp = fopen(file_name, "r");
 
@@ -132,20 +133,48 @@ int lcd_display_bmp_picture(char *file_name, unsigned int x0, unsigned int y0)
 		fseek(fp_bmp, 0x22L, SEEK_SET);
 		fread(&SizeOfImage, 4, 1, fp_bmp); //read size of image: number of bytes of raw data
 
-		fprintf(stderr, "width = %d = 0x%x (pixels)\n", width, width);
-		fprintf(stderr, "height = %d = 0x%x (pixels)\n", height, height);
-		fprintf(stderr, "SizeOfImage = %d = 0x%x (bytes)\n", SizeOfImage, SizeOfImage);
+//		fprintf(stderr, "width = %d = 0x%x (pixels)\n", width, width);
+//		fprintf(stderr, "height = %d = 0x%x (pixels)\n", height, height);
+//		fprintf(stderr, "SizeOfImage = %d = 0x%x (bytes)\n", SizeOfImage, SizeOfImage);
 
 		fseek(fp_bmp, 0x36L, SEEK_SET); //jump to start address of raw data
 
-		BGR_data = (unsigned char *)calloc(SizeOfImage, 1);
+		BGR_raw_data = (unsigned char *)calloc(SizeOfImage, 1);
 
-		if (BGR_data == NULL) {
-			fprintf(stderr, "Cann't malloc memory for image's data\n");
+		if (BGR_raw_data == NULL) {
+			fprintf(stderr, "Cann't malloc memory for BGR_raw_data\n");
 			return -1;
 		}
 
-		fread(BGR_data, SizeOfImage, 1, fp_bmp);
+		BGR_tmp = (unsigned char *)calloc(SizeOfImage, 1);
+
+		if (BGR_tmp == NULL) {
+			fprintf(stderr, "Cann't malloc memory for BGR_tmp\n");
+			return -1;
+		}
+
+		BGR = (unsigned char *)calloc(SizeOfImage, 1);
+
+		if (BGR == NULL) {
+			fprintf(stderr, "Cann't malloc memory for BGR\n");
+			return -1;
+		}
+
+		fread(BGR_raw_data, SizeOfImage, 1, fp_bmp);
+
+		remainder = width % 4;
+
+		for (i = 0; i < height; i++) {
+			for (j = 0; j < width*3; j++) {
+				BGR_tmp[i*width*3 + j] = BGR_raw_data[i * width * 3 + j + i * remainder];
+			}
+		}
+
+		for (i = 0; i < height; i++) {
+			for (j = 0;j < width*3;j++) {
+				BGR[i*width*3+j] = BGR_tmp[(height-1-i)*width*3+j];
+			}
+		}
 	}
 	else {
 		fprintf(stderr, "File %s is not 24 bits per pixel format: unsupported, please re-format into correct type\n", file_name);
@@ -158,15 +187,23 @@ int lcd_display_bmp_picture(char *file_name, unsigned int x0, unsigned int y0)
 			//Figure out where in memory to put the pixel
 			location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) + (y+vinfo.yoffset) * finfo.line_length;
 
-			*(fbp + location) = BGR_data[3*(width*(y-y0) + (x-x0))];			//Blue
-			*(fbp + location + 1) = BGR_data[3*(width*(y-y0) + (x-x0)) + 1];	//Green
-			*(fbp + location + 2) = BGR_data[3*(width*(y-y0) + (x-x0)) + 2];	//Red
+			*(fbp + location) = BGR[3*(width*(y-y0) + (x-x0))];			//Blue
+			*(fbp + location + 1) = BGR[3*(width*(y-y0) + (x-x0)) + 1];	//Green
+			*(fbp + location + 2) = BGR[3*(width*(y-y0) + (x-x0)) + 2];	//Red
 			*(fbp + location + 3) = 0;											//No transparency
 		}
 	}
 
-	if (BGR_data != NULL) {
-		free(BGR_data);
+	if (BGR_raw_data != NULL) {
+		free(BGR_raw_data);
+	}
+
+	if (BGR_tmp != NULL) {
+		free(BGR_tmp);
+	}
+
+	if (BGR != NULL) {
+		free(BGR);
 	}
 	fclose(fp_bmp);
 

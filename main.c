@@ -22,7 +22,7 @@ int main()
 	long int screensize = 0;
 	int x = 0, y = 0;
 	long int location = 0;
-	char date_str[19], time_str[13], date_str_tmp[19], time_str_tmp[13];
+	char date_str[16], time_str[10], date_str_tmp[16], time_str_tmp[10];
 
 	/* Open the file for reading and writing */
 	fbfd = open("/dev/fb0", O_RDWR);
@@ -30,24 +30,24 @@ int main()
 		fprintf(stderr, "Error: cannot open framebuffer device.\n");
 		return -1;
 	}
-	printf("The framebuffer device was opened successfully.\n");
+	fprintf(stderr, "The framebuffer device was opened successfully.\n");
 
-	/* Get fixed screen information */
+	//Get fixed screen information
 	if (ioctl(fbfd, FBIOGET_FSCREENINFO, &finfo)) {
 		fprintf(stderr, "Error reading fixed information.\n");
 		return -1;
 	}
 
-	/* Get variable screen information */
+	//Get variable screen information
 	if (ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo)) {
 		fprintf(stderr, "Error reading variable information.\n");
 		return -1;
 	}
 
-	/* Figure out the size of the screen in bytes */
+	//Figure out the size of the screen in bytes
 	screensize = vinfo.xres * vinfo.yres * vinfo.bits_per_pixel / 8;
 
-	/* Map the device to memory */
+	//Map the device to memory
 	fbp = (char *)mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
 	if ((int)fbp == -1) {
 		fprintf(stderr, "Error: failed to map frame buffer device to memory.\n");
@@ -62,22 +62,52 @@ int main()
 	memset(time_str, 0, sizeof(time_str));
 	memset(date_str_tmp, 0, sizeof(date_str_tmp));
 	memset(time_str_tmp, 0, sizeof(time_str_tmp));
-	//lcd_display_picture(gImage_book_heart,0,0);
-	lcd_display_bmp_picture("/root/LAM/photo.bmp", 0, 0);
-	while(1) {
-		get_date_time(date_str, time_str);
-		if (strcmp(date_str, date_str_tmp) != 0) {
-			lcd_display_string(date_str, 50, 200, BLUE_COLOR, RED_COLOR);
-		}
-		if (strcmp(time_str, time_str_tmp) != 0) {
-			lcd_display_string(time_str, 50, 260, BLUE_COLOR, RED_COLOR);
-		}
-		strcpy(date_str_tmp, date_str);
-		strcpy(time_str_tmp, time_str);
-		memset(date_str, 0, sizeof(date_str));
-		memset(time_str, 0, sizeof(time_str));
-		sleep(1);
-	}
+//	while(1) {
+		lcd_clear(YELLOW_COLOR);
+		lcd_display_bmp_picture("/LAM/01.bmp", 50, 50);
+//		sleep(5);
+//		lcd_clear(YELLOW_COLOR);
+//		lcd_display_bmp_picture("/LAM/02.bmp", 100, 100);
+//		sleep(5);
+//		lcd_clear(YELLOW_COLOR);
+//		lcd_display_bmp_picture("/LAM/03.bmp", 200, 10);
+//		sleep(5);
+//		lcd_clear(YELLOW_COLOR);
+//		lcd_display_bmp_picture("/LAM/04.bmp", 0, 0);
+//		sleep(5);
+//		lcd_clear(YELLOW_COLOR);
+//		lcd_display_bmp_picture("/LAM/05.bmp", 0, 0);
+//		sleep(5);
+//		lcd_clear(YELLOW_COLOR);
+//		lcd_display_bmp_picture("/LAM/06.bmp", 0, 0);
+//		sleep(5);
+//		lcd_clear(YELLOW_COLOR);
+//		lcd_display_bmp_picture("/LAM/07.bmp", 0, 0);
+//		sleep(5);
+//		lcd_clear(YELLOW_COLOR);
+//		lcd_display_bmp_picture("/LAM/08.bmp", 0, 0);
+//		sleep(5);
+//		lcd_clear(YELLOW_COLOR);
+//		lcd_display_bmp_picture("/LAM/09.bmp", 0, 0);
+//		sleep(5);
+//		lcd_clear(YELLOW_COLOR);
+//		lcd_display_bmp_picture("/LAM/10.bmp", 0, 0);
+//		sleep(5);
+//	}
+//	while(1) {
+//		get_date_time(date_str, time_str);
+//		if (strcmp(date_str, date_str_tmp) != 0) {
+//			lcd_display_string(date_str, 50, 200, BLUE_COLOR, RED_COLOR);
+//		}
+//		if (strcmp(time_str, time_str_tmp) != 0) {
+//			lcd_display_string(time_str, 50, 260, BLUE_COLOR, RED_COLOR);
+//		}
+//		strcpy(date_str_tmp, date_str);
+//		strcpy(time_str_tmp, time_str);
+//		memset(date_str, 0, sizeof(date_str));
+//		memset(time_str, 0, sizeof(time_str));
+//		sleep(1);
+//	}
 
 	munmap(fbp, screensize);
 	close(fbfd);

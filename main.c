@@ -62,52 +62,22 @@ int main()
 	memset(time_str, 0, sizeof(time_str));
 	memset(date_str_tmp, 0, sizeof(date_str_tmp));
 	memset(time_str_tmp, 0, sizeof(time_str_tmp));
-//	while(1) {
-		lcd_clear(YELLOW_COLOR);
-		lcd_display_bmp_picture("/LAM/01.bmp", 50, 50);
-//		sleep(5);
-//		lcd_clear(YELLOW_COLOR);
-//		lcd_display_bmp_picture("/LAM/02.bmp", 100, 100);
-//		sleep(5);
-//		lcd_clear(YELLOW_COLOR);
-//		lcd_display_bmp_picture("/LAM/03.bmp", 200, 10);
-//		sleep(5);
-//		lcd_clear(YELLOW_COLOR);
-//		lcd_display_bmp_picture("/LAM/04.bmp", 0, 0);
-//		sleep(5);
-//		lcd_clear(YELLOW_COLOR);
-//		lcd_display_bmp_picture("/LAM/05.bmp", 0, 0);
-//		sleep(5);
-//		lcd_clear(YELLOW_COLOR);
-//		lcd_display_bmp_picture("/LAM/06.bmp", 0, 0);
-//		sleep(5);
-//		lcd_clear(YELLOW_COLOR);
-//		lcd_display_bmp_picture("/LAM/07.bmp", 0, 0);
-//		sleep(5);
-//		lcd_clear(YELLOW_COLOR);
-//		lcd_display_bmp_picture("/LAM/08.bmp", 0, 0);
-//		sleep(5);
-//		lcd_clear(YELLOW_COLOR);
-//		lcd_display_bmp_picture("/LAM/09.bmp", 0, 0);
-//		sleep(5);
-//		lcd_clear(YELLOW_COLOR);
-//		lcd_display_bmp_picture("/LAM/10.bmp", 0, 0);
-//		sleep(5);
-//	}
-//	while(1) {
-//		get_date_time(date_str, time_str);
-//		if (strcmp(date_str, date_str_tmp) != 0) {
-//			lcd_display_string(date_str, 50, 200, BLUE_COLOR, RED_COLOR);
-//		}
-//		if (strcmp(time_str, time_str_tmp) != 0) {
-//			lcd_display_string(time_str, 50, 260, BLUE_COLOR, RED_COLOR);
-//		}
-//		strcpy(date_str_tmp, date_str);
-//		strcpy(time_str_tmp, time_str);
-//		memset(date_str, 0, sizeof(date_str));
-//		memset(time_str, 0, sizeof(time_str));
-//		sleep(1);
-//	}
+	lcd_display_bmp_picture("/LAM/20.bmp", 0, 0);
+
+	while(1) {
+		get_date_time(date_str, time_str);
+		if (strcmp(date_str, date_str_tmp) != 0) {
+			lcd_display_string(date_str, FONT36, 50, 200, BLUE_COLOR, RED_COLOR);
+		}
+		if (strcmp(time_str, time_str_tmp) != 0) {
+			lcd_display_string(time_str, FONT36, 50, 260, BLUE_COLOR, RED_COLOR);
+		}
+		strcpy(date_str_tmp, date_str);
+		strcpy(time_str_tmp, time_str);
+		memset(date_str, 0, sizeof(date_str));
+		memset(time_str, 0, sizeof(time_str));
+		sleep(1);
+	}
 
 	munmap(fbp, screensize);
 	close(fbfd);

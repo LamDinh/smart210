@@ -14,6 +14,9 @@
 #define LCD_WIDTH		800 //in pixels
 #define LCD_HEIGHT		480 //in pixels
 
+#define FONT28	0
+#define FONT36	1
+
 void lcd_draw_pixel(unsigned int x, unsigned int y, unsigned int color);
 void lcd_fill(unsigned int x0, unsigned int y0, unsigned int dx, unsigned int dy, unsigned int color);
 void lcd_clear(unsigned int color);
@@ -22,7 +25,7 @@ void lcd_draw_vline(unsigned int x0, unsigned int x1, unsigned int y, unsigned i
 void lcd_draw_rectangle(unsigned int x0, unsigned int x1, unsigned int y0, unsigned int y1, unsigned int color, int isFill);
 void lcd_display_picture(const unsigned char *picture, unsigned int x0, unsigned int y0);
 int lcd_display_bmp_picture(char *file_name, unsigned int x0, unsigned int y0);
-void lcd_display_character(unsigned char ch, unsigned int x0, unsigned int y0, unsigned int text_color, unsigned int background_color);
-void lcd_display_string(unsigned char *str, unsigned int x0, unsigned int y0, unsigned int text_color, unsigned int background_color);
+void lcd_display_character(unsigned char ch, unsigned char font, unsigned int x0, unsigned int y0, unsigned int text_color, unsigned int background_color);
+void lcd_display_string(unsigned char *str, unsigned char font, unsigned int x0, unsigned int y0, unsigned int text_color, unsigned int background_color);
 
 #endif

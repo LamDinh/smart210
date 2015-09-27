@@ -6,7 +6,8 @@
 #include <linux/fb.h>
 #include <sys/mman.h>
 
-#include "./includes/font.h"
+#include "./includes/font28.h"
+#include "./includes/font36.h"
 #include "./includes/lcd_driver.h"
 
 extern char *fbp;
@@ -123,7 +124,7 @@ int lcd_display_bmp_picture(char *file_name, unsigned int x0, unsigned int y0)
 	fseek(fp_bmp, 0x1CL, SEEK_SET);
 	fread(&bit_per_pixel, 2 , 1, fp_bmp);
 
-	fprintf(stderr, "bit_per_pixel = %d = 0x%x\n", bit_per_pixel, bit_per_pixel);
+//	fprintf(stderr, "bit_per_pixel = %d = 0x%x\n", bit_per_pixel, bit_per_pixel);
 
 	if (bit_per_pixel == 0x18) {		//24 bits per pixel
 		fseek(fp_bmp, 0x12L, SEEK_SET);
@@ -210,15 +211,21 @@ int lcd_display_bmp_picture(char *file_name, unsigned int x0, unsigned int y0)
 	return 0;
 }
 
-void lcd_display_character(unsigned char ch, unsigned int x0, unsigned int y0, unsigned int text_color, unsigned int background_color)
+void lcd_display_character(unsigned char ch, unsigned char font, unsigned int x0, unsigned int y0, unsigned int text_color, unsigned int background_color)
 {
 	unsigned int x, y;
 	unsigned int dx, dy;
 	long int location = 0;
 	unsigned int color_tmp[3];
 
-	dx = (unsigned int)((font_arial_28[ch-32][2]<<8) | font_arial_28[ch-32][3]);
-	dy = (unsigned int)((font_arial_28[ch-32][4]<<8) | font_arial_28[ch-32][5]);
+	if (font == FONT28) {
+		dx = (unsigned int)((font_arial_28[ch-32][2]<<8) | font_arial_28[ch-32][3]);
+		dy = (unsigned int)((font_arial_28[ch-32][4]<<8) | font_arial_28[ch-32][5]);
+	}
+	else if (font == FONT36) {
+		dx = (unsigned int)((font_arial_36[ch-32][2]<<8) | font_arial_36[ch-32][3]);
+		dy = (unsigned int)((font_arial_36[ch-32][4]<<8) | font_arial_36[ch-32][5]);
+	}
 
 	for(y = y0; y < (y0+dy); y++) {
 		for(x = x0; x < (x0+dx); x++) {
@@ -229,27 +236,52 @@ void lcd_display_character(unsigned char ch, unsigned int x0, unsigned int y0, u
 			color_tmp[1] = *(fbp + location + 1);
 			color_tmp[2] = *(fbp + location + 2);
 
-			//Coloring follow the font data
-			if ((font_arial_28[ch-32][3*(dx*(y-y0) + (x-x0)) + 10] == 0x00)
-				&& (font_arial_28[ch-32][3*(dx*(y-y0) + (x-x0)) + 9] == 0x00)
-				&& (font_arial_28[ch-32][3*(dx*(y-y0) + (x-x0)) + 10] == 0x00)){
-				*(fbp + location) = (text_color>>0)&0xFF;		//Blue
-				*(fbp + location + 1) = (text_color>>8)&0xFF;	//Green
-				*(fbp + location + 2) = (text_color>>16)&0xFF;	//Red
-			}
-			else {
-				if (background_color != CURRENT_COLOR) {
-					*(fbp + location) = (background_color>>0)&0xFF;		//Blue
-					*(fbp + location + 1) = (background_color>>8)&0xFF;	//Green
-					*(fbp + location + 2) = (background_color>>16)&0xFF;//Red
+			if (font == FONT28) {
+				//Coloring follow the font data
+				if ((font_arial_28[ch-32][3*(dx*(y-y0) + (x-x0)) + 10] == 0x00)
+					&& (font_arial_28[ch-32][3*(dx*(y-y0) + (x-x0)) + 9] == 0x00)
+					&& (font_arial_28[ch-32][3*(dx*(y-y0) + (x-x0)) + 10] == 0x00)){
+					*(fbp + location) = (text_color>>0)&0xFF;		//Blue
+					*(fbp + location + 1) = (text_color>>8)&0xFF;	//Green
+					*(fbp + location + 2) = (text_color>>16)&0xFF;	//Red
+				}
+				else {
+					if (background_color != CURRENT_COLOR) {
+						*(fbp + location) = (background_color>>0)&0xFF;		//Blue
+						*(fbp + location + 1) = (background_color>>8)&0xFF;	//Green
+						*(fbp + location + 2) = (background_color>>16)&0xFF;//Red
+					}
+				}
+
+				//Re-color unnecessary area into previous color
+				if (x >= (x0+font28_width[ch-32])) {
+					*(fbp + location) = color_tmp[0];		//Blue
+					*(fbp + location + 1) = color_tmp[1];	//Green
+					*(fbp + location + 2) = color_tmp[2];	//Red
 				}
 			}
-
-			//Re-color unnecessary area into previous color
-			if (x >= (x0+font_width[ch-32])) {
-				*(fbp + location) = color_tmp[0];		//Blue
-				*(fbp + location + 1) = color_tmp[1];	//Green
-				*(fbp + location + 2) = color_tmp[2];	//Red
+			else if (font == FONT36) {
+				//Coloring follow the font data
+				if ((font_arial_36[ch-32][3*(dx*(y-y0) + (x-x0)) + 10] == 0x00)
+					&& (font_arial_36[ch-32][3*(dx*(y-y0) + (x-x0)) + 9] == 0x00)
+					&& (font_arial_36[ch-32][3*(dx*(y-y0) + (x-x0)) + 10] == 0x00)){
+					*(fbp + location) = (text_color>>0)&0xFF;		//Blue
+					*(fbp + location + 1) = (text_color>>8)&0xFF;	//Green
+					*(fbp + location + 2) = (text_color>>16)&0xFF;	//Red
+				}
+				else {
+					if (background_color != CURRENT_COLOR) {
+						*(fbp + location) = (background_color>>0)&0xFF;		//Blue
+						*(fbp + location + 1) = (background_color>>8)&0xFF;	//Green
+						*(fbp + location + 2) = (background_color>>16)&0xFF;//Red
+					}
+				}
+				//Re-color unnecessary area into previous color
+				if (x >= (x0+font36_width[ch-32])) {
+					*(fbp + location) = color_tmp[0];		//Blue
+					*(fbp + location + 1) = color_tmp[1];	//Green
+					*(fbp + location + 2) = color_tmp[2];	//Red
+				}
 			}
 
 			*(fbp + location + 3) = 0;	//No transparency
@@ -257,7 +289,7 @@ void lcd_display_character(unsigned char ch, unsigned int x0, unsigned int y0, u
 	}
 }
 
-void lcd_display_string(unsigned char *str, unsigned int x0, unsigned int y0, unsigned int text_color, unsigned int background_color)
+void lcd_display_string(unsigned char *str, unsigned char font, unsigned int x0, unsigned int y0, unsigned int text_color, unsigned int background_color)
 {
 	unsigned int i;
 	unsigned int x;
@@ -265,7 +297,13 @@ void lcd_display_string(unsigned char *str, unsigned int x0, unsigned int y0, un
 	x = x0;
 
 	for (i = 0; i < strlen(str); i++) {
-		lcd_display_character(str[i], x, y0, text_color, background_color);
-		x += font_width[str[i] - 32];
+		lcd_display_character(str[i], font, x, y0, text_color, background_color);
+		if (font == FONT28) {
+			x += font28_width[str[i] - 32];
+
+		} else if (font == FONT36) {
+			x += font36_width[str[i] - 32];
+		}
+
 	}
 }

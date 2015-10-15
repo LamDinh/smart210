@@ -1,3 +1,7 @@
+//File: main.c
+//Author: lamdinh
+//Email: lamdinh179@gmail.com
+
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>

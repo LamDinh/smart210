@@ -1,3 +1,7 @@
+//File: font.h
+//Author: lamdinh
+//Email: lamdinh179@gmail.com
+
 #ifndef __FONT_H__
 #define __FONT_H__
 

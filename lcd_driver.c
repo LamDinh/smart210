@@ -1,3 +1,7 @@
+//File: lcd_driver.c
+//Author: lamdinh
+//Email: lamdinh179@gmail.com
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -191,7 +195,7 @@ int lcd_display_bmp_picture(char *file_name, unsigned int x0, unsigned int y0)
 			*(fbp + location) = BGR[3*(width*(y-y0) + (x-x0))];			//Blue
 			*(fbp + location + 1) = BGR[3*(width*(y-y0) + (x-x0)) + 1];	//Green
 			*(fbp + location + 2) = BGR[3*(width*(y-y0) + (x-x0)) + 2];	//Red
-			*(fbp + location + 3) = 0;											//No transparency
+			*(fbp + location + 3) = 0;									//No transparency
 		}
 	}
 

@@ -1,3 +1,7 @@
+//File: date_time.c
+//Author: lamdinh
+//Email: lamdinh179@gmail.com
+
 #include <stdio.h>
 #include <time.h>
 

@@ -1,3 +1,7 @@
+//File: lcd_driver.h
+//Author: lamdinh
+//Email: lamdinh179@gmail.com
+
 #ifndef __LCD_DRIVER_H__
 #define __LCD_DRIVER_H__
 

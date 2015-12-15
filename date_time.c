@@ -11,7 +11,7 @@ void get_date_time (char *date_str, char *time_str)
 {
 	time_t t = time(NULL);
 	struct tm tm = *localtime(&t);
-	char *wday[7] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+	char *wday[7] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 	char *week_day;
 
 	week_day = wday[tm.tm_wday];

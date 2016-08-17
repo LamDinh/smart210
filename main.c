@@ -7,10 +7,16 @@
 #include <fcntl.h>
 #include <linux/fb.h>
 #include <sys/mman.h>
+#include <time.h>
+
+#include <linux/rtc.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <stdlib.h>
+#include <errno.h>
 
 #include "./images/book_heart.h"
 #include "./images/robot.h"
-//#include "./images/filmframe.h"
 #include "./includes/lcd_driver.h"
 
 
@@ -19,6 +25,7 @@ extern const unsigned char font_width[96];
 char *fbp = 0;
 struct fb_var_screeninfo vinfo;
 struct fb_fix_screeninfo finfo;
+int rtc_dev;
 
 int main()
 {
@@ -27,6 +34,17 @@ int main()
 	int x = 0, y = 0;
 	long int location = 0;
 	char date_str[22], time_str[10], date_str_tmp[22], time_str_tmp[10];
+	
+	rtc_dev = 0;
+	/* Open the file for reading and writing */
+	rtc_dev  = open("/dev/rtc", O_RDWR);
+	if (rtc_dev < 0)
+	{
+		fprintf(stderr, "- Error: Can not open RTC device, rtc_dev = %d\n", rtc_dev);
+		return -1;
+	}
+
+	fprintf(stderr, "RTC device was opened successfully.\n");
 
 	/* Open the file for reading and writing */
 	fbfd = open("/dev/fb0", O_RDWR);
@@ -233,10 +251,15 @@ int main()
 	lcd_display_string("I JUST WANNA TO SAY:", FONT28, 50, 50, BLUE_COLOR, CURRENT_COLOR);
 	sleep(7);
 
-	lcd_display_bmp_picture("/LAM/WillYouMarryMe.bmp", 0, 0);
-	sleep(100);
+	//lcd_display_bmp_picture("/LAM/WillYouMarryMe.bmp", 0, 0);
+	//sleep(100);
+	lcd_display_bmp_picture("/LAM/BrideGroom1.bmp", 0, 0);
+	lcd_display_string("I'M SO HAPPY", FONT28, 90, 15, RED_COLOR, CURRENT_COLOR);
+	lcd_display_string("THAT I MARRIED YOU", FONT28, 10, 55, RED_COLOR, CURRENT_COLOR);
+	sleep(7);
 
-	lcd_display_bmp_picture("/LAM/KissingCouple.bmp", 0, 0);
+	//lcd_display_bmp_picture("/LAM/KissingCouple.bmp", 0, 0);
+	lcd_display_bmp_picture("/LAM/BrideGroom2.bmp", 0, 0);	
 	lcd_display_string("KEEP THE TIME WE HAVE TOGETHER", FONT28, 40, 20, PINK_COLOR, CURRENT_COLOR);
 	lcd_display_string("HAPPILY", FONT36, 310, 60, PINK_COLOR, CURRENT_COLOR);
 	lcd_display_character(127, FONT36, 510, 60, RED_COLOR, CURRENT_COLOR); //heart
@@ -253,7 +276,7 @@ int main()
 			lcd_display_string(date_str, FONT36, 50, 420, BLUE_COLOR, PINK_COLOR);
 		}
 		if (strcmp(time_str, time_str_tmp) != 0) {
-			lcd_display_string(time_str, FONT36, 560, 420, BLUE_COLOR, PINK_COLOR);
+			lcd_display_string(time_str, FONT36, 600, 420, BLUE_COLOR, PINK_COLOR);
 		}
 		memset(date_str_tmp, 0, sizeof(date_str_tmp));
 		memset(time_str_tmp, 0, sizeof(time_str_tmp));
@@ -266,5 +289,6 @@ int main()
 
 	munmap(fbp, screensize);
 	close(fbfd);
+	close(rtc_dev);
 	return 0;
 }

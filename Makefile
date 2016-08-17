@@ -1,9 +1,9 @@
 cc=arm-linux-gcc
 strip=arm-linux-strip
 
-clock_lcd7inch: main.o lcd_driver.o date_time.o
-	$(cc) -o clock_lcd7inch *.o -lpthread -lm
-	$(strip) clock_lcd7inch
+loving_clock: main.o lcd_driver.o date_time.o
+	$(cc) -o loving_clock *.o -lpthread -lm
+	$(strip) loving_clock
 
 main.o: main.c ./images/*.h ./includes/*.h
 	$(cc) -c main.c
@@ -15,4 +15,4 @@ date_time.o: date_time.c ./images/*.h ./includes/*.h
 	$(cc) -c date_time.c
 
 clean:
-	rm -rf clock_lcd7inch *.o
+	rm -rf loving_clock *.o
